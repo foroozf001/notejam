@@ -1,0 +1,48 @@
+---
+# https://docs.ansible.com/ansible/latest/collections/community/kubernetes/helm_module.html
+- name: Install NGINX Ingress Controller Helm chart
+  community.kubernetes.helm:
+    chart_repo_url: "https://kubernetes.github.io/ingress-nginx"
+    chart_ref: "ingress-nginx"
+    release_name: "nginx"
+    release_namespace: "ingress-nginx"
+    create_namespace: yes
+    release_state: present
+    atomic: yes
+    release_values:
+      controller:
+        replicaCount: 2
+        rbac:
+          create: 'true'
+        nodeSelector:
+          beta.kubernetes.io/os: "linux"
+        service:
+          loadBalancerIP: 51.138.83.66
+          annotations:
+            service.beta.kubernetes.io/azure-dns-label-name: notejam-prod-label
+            service.beta.kubernetes.io/azure-load-balancer-resource-group: nordcloud-notejam-prod-rg
+      defaultBackend:
+        nodeSelector:
+          beta.kubernetes.io/os: "linux"
+
+# https://docs.ansible.com/ansible/latest/collections/community/kubernetes/k8s_module.html
+- name: Create production namespace
+  k8s:
+    name: prod
+    api_version: v1
+    kind: Namespace
+    state: present
+
+# https://docs.ansible.com/ansible/latest/collections/community/kubernetes/k8s_module.html
+- name: Create Notejam.ga secrets
+  community.kubernetes.k8s:
+    state: present
+    namespace: prod
+    src: "/home/fforoozan/Repositories/notejam/azure/environments/prod/manifests/secrets.yaml"
+
+# https://docs.ansible.com/ansible/latest/collections/community/kubernetes/k8s_module.html
+- name: Create Notejam.ga instance
+  community.kubernetes.k8s:
+    state: present
+    namespace: prod
+    src: "/home/fforoozan/Repositories/notejam/azure/environments/prod/manifests/notejam.yaml"

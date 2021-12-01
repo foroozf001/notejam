@@ -1,0 +1,25 @@
+module "prod" {
+  source                         = "../../modules"
+  app_name                       = var.app_name
+  company                        = var.company
+  environment                    = var.environment
+  location                       = var.location
+  aks_dns_prefix                 = var.aks_dns_prefix
+  aks_dns_service_ip             = var.aks_dns_service_ip
+  aks_docker_bridge_cidr         = var.aks_docker_bridge_cidr
+  aks_service_cidr               = var.aks_service_cidr
+  aks_agent_min                  = var.aks_agent_min
+  aks_agent_max                  = var.aks_agent_max
+  aks_max_pods                   = var.aks_max_pods
+  availability_zones             = var.availability_zones
+  node_pool_name                 = var.node_pool_name
+  aks_agent_vm_size              = var.aks_agent_vm_size
+  aks_agent_count                = var.aks_agent_count
+  aks_agent_os_disk_size         = var.aks_agent_os_disk_size
+  services_subnet_address_prefix = var.services_subnet_address_prefix
+  aks_subnet_address_prefix      = var.aks_subnet_address_prefix
+  kubernetes_version             = var.kubernetes_version
+  tag_name                       = var.tag_name
+  tag_value                      = var.tag_value
+  tags                           = var.tags
+}

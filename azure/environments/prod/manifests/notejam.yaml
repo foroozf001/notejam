@@ -1,0 +1,95 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: notejam
+  name: notejam
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: notejam
+  template:
+    metadata:
+      labels:
+        app: notejam
+    spec:
+      containers:
+      - image: mynotejamacr.azurecr.io/notejam:0.4
+        name: notejam
+        resources:
+          limits:
+            memory: "192Mi"
+            cpu: "150m"
+          requests:
+            memory: "96Mi"
+            cpu: "50m"
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: notejam
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: notejam
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 50
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      targetAverageUtilization: 50
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: notejam
+  name: notejam
+spec:
+  ports:
+  - port: 5000
+    protocol: TCP
+    targetPort: 5000
+  selector:
+    app: notejam
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: notejam
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  tls:
+  - hosts:
+      - notejam.ga
+      - www.notejam.ga
+    secretName: notejam.ga
+  rules:
+  - host: notejam.ga
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: notejam
+            port: 
+              number: 5000
+  - host: www.notejam.ga
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: notejam
+            port: 
+              number: 5000

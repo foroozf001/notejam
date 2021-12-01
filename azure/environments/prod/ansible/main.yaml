@@ -1,0 +1,7 @@
+---
+# This playbook deploys Notejam.ga
+- hosts: localhost
+  collections:
+    - community.kubernetes
+  roles:
+    - notejam.ga
